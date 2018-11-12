@@ -1,0 +1,24 @@
+pool:
+  vmImage: 'Ubuntu 16.04'
+
+steps:
+- script: terraform init
+  displayName: 'terraform init'
+
+- script: terraform validate
+  displayName: 'terraform validate'
+
+- script: terraform plan
+  displayName: 'terraform plan -out=$(Build.ArtifactStagingDirectory)/plan.tfplan'
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: ${Build.SourcesDirectory}
+    contents: '**\*!.git\*!.gitignore'
+    target: $(Build.ArtifactStagingDirectory)
+
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+    artifactName: 'plan'
