@@ -1,5 +1,24 @@
-provider azurerm {
+variable "tenantId" {
+  description = "The AzureAD tenant"
+}
 
+variable "subscriptionId" {
+  description = "The azure subscription"
+}
+
+variable "clientid" {
+  description = "The application ID of the service principal"
+}
+
+variable "clientSecret" {
+  description = "The secret key for the service principal"
+}
+
+provider azurerm {
+  tenant_id = "${var.tenantId}"
+  subscription_id = "${var.subscriptionId}"
+  client_id = "${var.clientid}"
+  client_secret = "${var.clientSecret}"
 }
 
 resource "azurerm_resource_group" "rg" {

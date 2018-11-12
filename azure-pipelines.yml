@@ -6,8 +6,8 @@ pool:
 steps:
 - script: |
     terraform init -input=false
-    terraform workspace new build-${Build.BuildNumber}
-    terraform workspace select build-${Build.BuildNumber}
+    terraform workspace new build-$(Build.BuildNumber)
+    terraform workspace select build-$(Build.BuildNumber)
     terraform validate
     terraform plan -out=$(Build.ArtifactStagingDirectory)/plan.tfplan -input=false'
   displayName: 'Generate terraform plan'
@@ -16,7 +16,7 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    sourceFolder: ${Build.SourcesDirectory}
+    sourceFolder: $(Build.SourcesDirectory)
     contents: '**\*!.git\*!.gitignore'
     target: $(Build.ArtifactStagingDirectory)
 
