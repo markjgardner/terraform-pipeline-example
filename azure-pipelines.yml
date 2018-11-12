@@ -1,22 +1,24 @@
+name: $(Date:yyyyMMdd)$(Rev:.r)
+
 pool:
   vmImage: 'Ubuntu 16.04'
 
 steps:
-- script: terraform init
-  displayName: 'terraform init'
-
-- script: terraform validate
-  displayName: 'terraform validate'
-
-- script: terraform plan
-  displayName: 'terraform plan -out=$(Build.ArtifactStagingDirectory)/plan.tfplan'
+- script: |
+    terraform init -input=false
+    terraform workspace new build-${Build.BuildNumber}
+    terraform workspace select build-${Build.BuildNumber}
+    terraform validate
+    terraform plan -out=$(Build.ArtifactStagingDirectory)/plan.tfplan -input=false'
+  displayName: 'Generate terraform plan'
+  env:
+    TF_IN_AUTOMATION: 'true'
 
 - task: CopyFiles@2
   inputs:
     sourceFolder: ${Build.SourcesDirectory}
     contents: '**\*!.git\*!.gitignore'
     target: $(Build.ArtifactStagingDirectory)
-
 
 - task: PublishBuildArtifacts@1
   inputs:
