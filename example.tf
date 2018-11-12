@@ -6,12 +6,24 @@ variable "subscriptionId" {
   description = "The azure subscription"
 }
 
-variable "clientid" {
+variable "clientId" {
   description = "The application ID of the service principal"
 }
 
 variable "clientSecret" {
   description = "The secret key for the service principal"
+}
+
+variable "storageAccount" {
+  description = "The storage account containing the terraform state"
+}
+
+terraform {
+  backend "azurerm" {
+    storage_account_name = "${var.storageAccount}"
+    container_name       = "terraform"
+    key                  = "example"
+  }
 }
 
 provider azurerm {

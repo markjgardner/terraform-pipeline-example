@@ -1,26 +1,45 @@
 name: $(Date:yyyyMMdd)$(Rev:.r)
 
+trigger:
+- master
+
 pool:
   vmImage: 'Ubuntu 16.04'
 
 steps:
 - script: |
-    terraform init -input=false
+    # initialize the terraform workspace.
+    # this will install the provider, setup the backend and download all referenced modules
+    terraform init -input=false -no-color -backend-config="access_key=$(KEY-terraform-sa)"
+    
+    # create a new temporary workspace
     terraform workspace new build-$(Build.BuildNumber)
     terraform workspace select build-$(Build.BuildNumber)
-    terraform validate
-    terraform plan -out=$(Build.ArtifactStagingDirectory)/plan.tfplan -input=false'
+
+    # validate the definition 
+    terraform validate -no-color
+
+    # generate a plan but do not include it in the published artifact
+    # this plan is only generated in order to validate that the module will 'build' (it is a test)
+    # the 'tfProviderArgs' parameter contains all variables needed to initialize the provider
+    terraform plan -input=false -no-color -out=$(Common.TestResultsDirectory)/plan.tfplan $(tfProviderArgs)'
   displayName: 'Generate terraform plan'
   env:
-    TF_IN_AUTOMATION: 'true'
+    TF_IN_AUTOMATION: true
+
+- script: terraform workspace delete build-$(Build.BuildNumber) -force
+  displayName: 'Remove temporary workspace'
+  condition: always()
+  env:
+    TF_IN_AUTOMATION: true
 
 - task: CopyFiles@2
   inputs:
-    sourceFolder: $(Build.SourcesDirectory)
+    sourceFolder: '$(Build.SourcesDirectory)'
     contents: '**\*!.git\*!.gitignore'
-    target: $(Build.ArtifactStagingDirectory)
+    target: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'plan'
+    artifactName: 'terraform'
