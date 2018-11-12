@@ -11,19 +11,31 @@ steps:
     # initialize the terraform workspace.
     # this will install the provider, setup the backend and download all referenced modules
     terraform init -input=false -no-color -backend-config="access_key=$(KEY-terraform-sa)" -backend-config="storage_account_name=$(terraform-sa)"
+  displayName: 'Initialize terraform'
+  env:
+    TF_IN_AUTOMATION: true
+
+- script: |
+    # validate the definition 
+    terraform validate -no-color $(tfProviderArgs)
+  displayName: 'Validate the code'
+  env:
+    TF_IN_AUTOMATION: true
     
+- script: |
     # create a new temporary workspace
     terraform workspace new build-$(Build.BuildNumber)
     terraform workspace select build-$(Build.BuildNumber)
+  displayName: 'Create temporary workspace'
+  env:
+    TF_IN_AUTOMATION: true
 
-    # validate the definition 
-    terraform validate -no-color
-
+- script: |
     # generate a plan but do not include it in the published artifact
     # this plan is only generated in order to validate that the module will 'build' (it is a test)
     # the 'tfProviderArgs' parameter contains all variables needed to initialize the provider
-    terraform plan -input=false -no-color -out=$(Common.TestResultsDirectory)/plan.tfplan $(tfProviderArgs)'
-  displayName: 'Generate terraform plan'
+    terraform plan -input=false -no-color -out=$(Common.TestResultsDirectory)/plan.tfplan $(tfProviderArgs)
+  displayName: 'Generate test plan'
   env:
     TF_IN_AUTOMATION: true
 
