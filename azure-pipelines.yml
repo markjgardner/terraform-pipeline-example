@@ -10,7 +10,7 @@ steps:
 - script: |
     # initialize the terraform workspace.
     # this will install the provider, setup the backend and download all referenced modules
-    terraform init -input=false -no-color -backend-config="access_key=$(KEY-terraform-sa)"
+    terraform init -input=false -no-color -backend-config="access_key=$(KEY-terraform-sa)" -backend-config="storage_account_name=$(terraform-sa)"
     
     # create a new temporary workspace
     terraform workspace new build-$(Build.BuildNumber)
