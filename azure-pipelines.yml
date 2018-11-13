@@ -39,7 +39,10 @@ steps:
   env:
     TF_IN_AUTOMATION: true
 
-- script: terraform workspace delete build-$(Build.BuildNumber) -force
+- script: |
+    # remove the temporary workspace as it is no longer needed (cleanup)
+    terraform workspace select default
+    terraform workspace delete -force build-$(Build.BuildNumber)
   displayName: 'Remove temporary workspace'
   condition: always()
   env:
@@ -47,9 +50,12 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    sourceFolder: '$(Build.SourcesDirectory)'
-    contents: '**\*!.git\*!.gitignore'
-    target: '$(Build.ArtifactStagingDirectory)'
+    Contents: |
+     **
+     !.git/**/*
+     !.gitignore
+     !azure-pipelines.yml
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
   inputs:
