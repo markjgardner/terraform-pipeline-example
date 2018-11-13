@@ -16,40 +16,41 @@ variable "clientSecret" {
 
 terraform {
   backend "azurerm" {
-    container_name       = "terraform"
-    key                  = "example"
+    container_name = "terraform"
+    key            = "example"
   }
 }
 
 provider azurerm {
-  tenant_id = "${var.tenantId}"
+  version         = "~> 1.18"
+  tenant_id       = "${var.tenantId}"
   subscription_id = "${var.subscriptionId}"
-  client_id = "${var.clientId}"
-  client_secret = "${var.clientSecret}"
+  client_id       = "${var.clientId}"
+  client_secret   = "${var.clientSecret}"
 }
 
 resource "azurerm_resource_group" "rg" {
-  name = "example-rg"
+  name     = "tf-example-${terraform.workspace}-rg"
   location = "eastus2"
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name = "example-vn"
+  name                = "tf-example-${terraform.workspace}-vn"
   resource_group_name = "${azurerm_resource_group.rg.name}"
-  location = "${azurerm_resource_group.rg.location}"
-  address_space = ["10.0.0.0/20"]
+  location            = "${azurerm_resource_group.rg.location}"
+  address_space       = ["10.0.0.0/20"]
 }
 
 resource "azurerm_subnet" "gw-sn" {
-  name = "GatewaySubnet"
-  resource_group_name = "${azurerm_resource_group.rg.name}"
+  name                 = "GatewaySubnet"
+  resource_group_name  = "${azurerm_resource_group.rg.name}"
   virtual_network_name = "${azurerm_virtual_network.vnet.name}"
-  address_prefix = "10.0.0.0/27"
+  address_prefix       = "10.0.0.0/27"
 }
 
 resource "azurerm_subnet" "app-sn" {
-  name = "AppSubnet"
-  resource_group_name = "${azurerm_resource_group.rg.name}"
+  name                 = "AppSubnet"
+  resource_group_name  = "${azurerm_resource_group.rg.name}"
   virtual_network_name = "${azurerm_virtual_network.vnet.name}"
-  address_prefix = "10.0.0.32/27"
+  address_prefix       = "10.0.0.32/27"
 }
