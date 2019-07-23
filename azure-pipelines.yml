@@ -53,4 +53,4 @@ stages:
           !azure-pipelines.yml
 
     - publish: $(Build.ArtifactStagingDirectory)
-        artifact: terraform
+      artifact: terraform
