@@ -1,63 +1,56 @@
 name: $(Date:yyyyMMdd)$(Rev:.r)
-
 trigger:
 - master
 
-pool:
-  vmImage: 'Ubuntu 16.04'
-
-steps:
-- script: |
-    # initialize the terraform workspace.
-    # this will install the provider, setup the backend and download all referenced modules
-    terraform init -input=false -no-color -backend-config="access_key=$(KEY-terraform-sa)" -backend-config="storage_account_name=$(terraform-sa)"
-  displayName: 'Initialize terraform'
-  env:
+stages: 
+- stage: Build
+  variables:
     TF_IN_AUTOMATION: true
+  jobs:
+  - job:
+    pool:
+      vmImage: Ubuntu 16.04
 
-- script: |
-    # validate the definition 
-    terraform validate -no-color $(tfProviderArgs)
-  displayName: 'Validate the code'
-  env:
-    TF_IN_AUTOMATION: true
-    
-- script: |
-    # create a new temporary workspace
-    terraform workspace new build-$(Build.BuildNumber)
-    terraform workspace select build-$(Build.BuildNumber)
-  displayName: 'Create temporary workspace'
-  env:
-    TF_IN_AUTOMATION: true
+    steps:
+    - script: |
+        # initialize the terraform workspace.
+        # this will install the provider, setup the backend and download all referenced modules
+        terraform init -input=false -no-color -backend-config="access_key=$(KEY-terraform-sa)" -backend-config="storage_account_name=$(terraform-sa)"
+      displayName: Initialize terraform
 
-- script: |
-    # generate a plan but do not include it in the published artifact
-    # this plan is only generated in order to validate that the module will 'build' (it is a test)
-    # the 'tfProviderArgs' parameter contains all variables needed to initialize the provider
-    terraform plan -input=false -no-color -out=$(Common.TestResultsDirectory)/plan.tfplan $(tfProviderArgs)
-  displayName: 'Generate test plan'
-  env:
-    TF_IN_AUTOMATION: true
+    - script: |
+        # validate the definition 
+        terraform validate -no-color $(tfProviderArgs)
+      displayName: Validate the code
+        
+    - script: |
+        # create a new temporary workspace
+        terraform workspace new build-$(Build.BuildNumber)
+        terraform workspace select build-$(Build.BuildNumber)
+      displayName: Create temporary workspace
 
-- script: |
-    # remove the temporary workspace as it is no longer needed (cleanup)
-    terraform workspace select default
-    terraform workspace delete -force build-$(Build.BuildNumber)
-  displayName: 'Remove temporary workspace'
-  condition: always()
-  env:
-    TF_IN_AUTOMATION: true
+    - script: |
+        # generate a plan but do not include it in the published artifact
+        # this plan is only generated in order to validate that the module will 'build' (it is a test)
+        # the 'tfProviderArgs' parameter contains all variables needed to initialize the provider
+        terraform plan -input=false -no-color -out=$(Common.TestResultsDirectory)/plan.tfplan $(tfProviderArgs)
+      displayName: Generate test plan
 
-- task: CopyFiles@2
-  inputs:
-    Contents: |
-     **
-     !.git/**/*
-     !.gitignore
-     !azure-pipelines.yml
-    targetFolder: '$(Build.ArtifactStagingDirectory)'
+    - script: |
+        # remove the temporary workspace as it is no longer needed (cleanup)
+        terraform workspace select default
+        terraform workspace delete -force build-$(Build.BuildNumber)
+      displayName: Remove temporary workspace
+      condition: always()
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'terraform'
+    - task: CopyFiles@2
+      inputs:
+        contents: |
+        **
+        !.git/**/*
+        !.gitignore
+        !azure-pipelines.yml
+        targetFolder: $(Build.ArtifactStagingDirectory)
+
+    - publish: $(Build.ArtifactStagingDirectory)
+        artifact: terraform
