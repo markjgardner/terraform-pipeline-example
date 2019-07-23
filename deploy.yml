@@ -7,7 +7,7 @@ steps:
     chmod +x -R $(System.DefaultWorkingDirectory)/artifact/terraform/.terraform/plugins
   displayName: fix permissions
 - script: |
-    terraform workspace select ${{environmentName}}
+    terraform workspace select ${{ parameters.environmentName }}
   displayName: select environment workspace
 - script: |
     terraform plan -input=false -no-color -out=$(System.DefaultWorkingDirectory)/plan.tfplan $(tfProviderArgs) 
