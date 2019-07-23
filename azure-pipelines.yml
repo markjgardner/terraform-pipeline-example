@@ -59,25 +59,25 @@ stages:
   variables:
     TF_IN_AUTOMATION: true
   jobs:
-  - deployment:
+  - deployment: test
     pool:
       vmImage: Ubuntu 16.04
-    environment: 'test'
+    environment: test
     strategy:
       runOnce:
         deploy:
           steps:
           - template: deploy.yml
             parameters:
-              environmentName: 'test'
-  - deployment:
+              environmentName: test
+  - deployment: production
     pool:
       vmImage: Ubuntu 16.04
-    environment: 'production'
+    environment: production
     strategy:
       runOnce:
         deploy:
           steps:
           - template: deploy.yml
             parameters:
-              environmentName: 'production'
+              environmentName: production

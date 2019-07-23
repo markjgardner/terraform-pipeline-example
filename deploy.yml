@@ -4,14 +4,18 @@ parameters:
 steps:
 - script: |
     # ensure all terraform provider plugins are executable
-    chmod +x -R $(System.DefaultWorkingDirectory)/artifact/terraform/.terraform/plugins
+    chmod +x -R .terraform/plugins
   displayName: fix permissions
+  workingDirectory: $(Pipeline.Workspace)/terraform/
 - script: |
     terraform workspace select ${{ parameters.environmentName }}
   displayName: select environment workspace
+  workingDirectory: $(Pipeline.Workspace)/terraform/
 - script: |
-    terraform plan -input=false -no-color -out=$(System.DefaultWorkingDirectory)/plan.tfplan $(tfProviderArgs) 
+    terraform plan -input=false -no-color -out=plan.tfplan $(tfProviderArgs) 
   displayName: generate plan
+  workingDirectory: $(Pipeline.Workspace)/terraform/
 - script: |
-    terraform apply -input=false -no-color -auto-approve $(System.DefaultWorkingDirectory)/plan.tfplan
+    terraform apply -input=false -no-color -auto-approve plan.tfplan
   displayName: apply plan
+  workingDirectory: $(Pipeline.Workspace)/terraform/
