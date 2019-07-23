@@ -45,12 +45,12 @@ stages:
 
     - task: CopyFiles@2
       inputs:
-        contents: |
-        **
-        !.git/**/*
-        !.gitignore
-        !azure-pipelines.yml
         targetFolder: $(Build.ArtifactStagingDirectory)
+        contents: |
+          **
+          !.git/**/*
+          !.gitignore
+          !azure-pipelines.yml
 
     - publish: $(Build.ArtifactStagingDirectory)
         artifact: terraform
