@@ -1,0 +1,17 @@
+parameters:
+  environmentName: ''
+
+steps:
+- script: |
+    # ensure all terraform provider plugins are executable
+    chmod +x -R $(System.DefaultWorkingDirectory)/artifact/terraform/.terraform/plugins
+  displayName: fix permissions
+- script: |
+    terraform workspace select ${{environmentName}}
+  displayName: select environment workspace
+- script: |
+    terraform plan -input=false -no-color -out=$(System.DefaultWorkingDirectory)/plan.tfplan $(tfProviderArgs) 
+  displayName: generate plan
+- script: |
+    terraform apply -input=false -no-color -auto-approve $(System.DefaultWorkingDirectory)/plan.tfplan
+  displayName: apply plan

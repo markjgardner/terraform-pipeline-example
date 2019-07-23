@@ -50,7 +50,34 @@ stages:
           **
           !.git/**/*
           !.gitignore
-          !azure-pipelines.yml
+          !*.yml
 
     - publish: $(Build.ArtifactStagingDirectory)
       artifact: terraform
+
+- stage: Release  
+  variables:
+    TF_IN_AUTOMATION: true
+  jobs:
+  - deployment:
+    pool:
+      vmImage: Ubuntu 16.04
+    environment: 'test'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: deploy.yml
+            parameters:
+              environmentName: 'test'
+  - deployment:
+    pool:
+      vmImage: Ubuntu 16.04
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: deploy.yml
+            parameters:
+              environmentName: 'production'
