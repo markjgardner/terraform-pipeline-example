@@ -70,10 +70,15 @@ stages:
           - template: deploy.yml
             parameters:
               environmentName: test
+  - job: approval
+    timeoutInMinutes: 60
+    pool: server
+    dependsOn: test
   - deployment: production
     pool:
       vmImage: Ubuntu 16.04
     environment: production
+    dependsOn: approval
     strategy:
       runOnce:
         deploy:
