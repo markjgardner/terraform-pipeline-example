@@ -70,15 +70,6 @@ stages:
           - template: deploy.yml
             parameters:
               environmentName: test
-  - job: approval
-    timeoutInMinutes: 60
-    pool: server
-    dependsOn: test
-    steps:
-    - task: ManualIntervention@8
-      displayName: Approve test deployment
-      inputs:
-        emailRecipients: $(approvers)
   - deployment: production
     pool:
       vmImage: Ubuntu 16.04
