@@ -59,6 +59,7 @@ stages:
   variables:
     TF_IN_AUTOMATION: true
   jobs:
+  
   - deployment: test
     pool:
       vmImage: Ubuntu 16.04
@@ -70,6 +71,7 @@ stages:
           - template: deploy.yml
             parameters:
               environmentName: test
+
   - deployment: production
     pool:
       vmImage: Ubuntu 16.04

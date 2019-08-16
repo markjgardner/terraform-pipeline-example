@@ -29,4 +29,8 @@ override.tf.json
 #
 # !example_override.tf
 
+# Plan files should not be included
+*.tfplan
+*.txtplan
+
 # End of https://www.gitignore.io/api/terraform
