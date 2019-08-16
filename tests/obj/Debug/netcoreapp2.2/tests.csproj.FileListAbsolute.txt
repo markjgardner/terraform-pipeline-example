@@ -12,3 +12,4 @@ C:\Users\margard\source\repos\vsts\terrform pipeline example\tests\obj\Debug\net
 C:\Users\margard\source\repos\vsts\terrform pipeline example\tests\obj\Debug\netcoreapp2.2\tests.AssemblyInfo.cs
 C:\Users\margard\source\repos\vsts\terrform pipeline example\tests\obj\Debug\netcoreapp2.2\tests.dll
 C:\Users\margard\source\repos\vsts\terrform pipeline example\tests\obj\Debug\netcoreapp2.2\tests.pdb
+C:\Users\margard\source\repos\vsts\terrform pipeline example\tests\bin\Debug\netcoreapp2.2\plan.json
