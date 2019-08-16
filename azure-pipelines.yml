@@ -46,11 +46,15 @@ steps:
   env:
     TF_IN_AUTOMATION: true
 
-- script: |
-    # run any unit tests against the generated plan
-    dotnet test -r $(Common.TestResultsDirectory)
+- task: VSTest@2
   displayName: 'Run unittests'
-  workingDirectory: $(Build.SourcesDirectory)/tests/
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*test*.dll
+      !**\*testadapter.dll
+      !**\obj\** 
+    runTestsInIsolation: true
 
 - script: |
     # remove the temporary workspace as it is no longer needed (cleanup)
