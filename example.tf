@@ -22,7 +22,7 @@ terraform {
 }
 
 provider azurerm {
-  version         = "~> 1.18"
+  version         = "~> 1.32"
   tenant_id       = "${var.tenantId}"
   subscription_id = "${var.subscriptionId}"
   client_id       = "${var.clientId}"

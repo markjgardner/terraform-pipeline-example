@@ -40,6 +40,19 @@ steps:
     TF_IN_AUTOMATION: true
 
 - script: |
+    # convert the plan to json so that we can run unit tests against it
+    terraform show --json $(Common.TestResultsDirectory)/plan.tfplan > $(Build.SourcesDirectory)/tests/plan.json
+  displayName: 'Convert plan to json'
+  env:
+    TF_IN_AUTOMATION: true
+
+- script: |
+    # run any unit tests against the generated plan
+    dotnet test -r $(Common.TestResultsDirectory)
+  displayName: 'Run unittests'
+  workingDirectory: $(Build.SourcesDirectory)/tests/
+
+- script: |
     # remove the temporary workspace as it is no longer needed (cleanup)
     terraform workspace select default
     terraform workspace delete -force build-$(Build.BuildNumber)
@@ -55,6 +68,7 @@ steps:
      !.git/**/*
      !.gitignore
      !azure-pipelines.yml
+     !tests/**/*
     targetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1

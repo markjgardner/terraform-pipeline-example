@@ -1,0 +1,2 @@
+access_key = "9/pyW4OAaVrpCtqX5R82JKPHB0Oqwq6ndzs5AJPfyb3nC1meD2BSCWGHVYxahmlOWpkwjc4vSUz6ajFBWXRuAQ=="
+storage_account_name = "terraformexamplestate"
