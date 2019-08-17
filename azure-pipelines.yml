@@ -46,15 +46,12 @@ steps:
   env:
     TF_IN_AUTOMATION: true
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
   displayName: 'Run unittests'
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*test*.dll
-      !**\*testadapter.dll
-      !**\obj\** 
-    runTestsInIsolation: true
+    command: test
+    publishTestResults: true
+    workingDirectory: $(Build.SourcesDirectory)/tests/
 
 - script: |
     # remove the temporary workspace as it is no longer needed (cleanup)
