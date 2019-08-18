@@ -40,6 +40,15 @@ steps:
     TF_IN_AUTOMATION: true
 
 - script: |
+    # remove the temporary workspace as it is no longer needed (cleanup)
+    terraform workspace select default
+    terraform workspace delete -force build-$(Build.BuildNumber)
+  displayName: 'Remove temporary workspace'
+  condition: always()
+  env:
+    TF_IN_AUTOMATION: true
+
+- script: |
     # convert the plan to json so that we can run unit tests against it
     terraform show --json $(Common.TestResultsDirectory)/plan.tfplan > $(Build.SourcesDirectory)/tests/plan.json
   displayName: 'Convert plan to json'
@@ -52,15 +61,6 @@ steps:
     command: test
     publishTestResults: true
     workingDirectory: $(Build.SourcesDirectory)/tests/
-
-- script: |
-    # remove the temporary workspace as it is no longer needed (cleanup)
-    terraform workspace select default
-    terraform workspace delete -force build-$(Build.BuildNumber)
-  displayName: 'Remove temporary workspace'
-  condition: always()
-  env:
-    TF_IN_AUTOMATION: true
 
 - task: CopyFiles@2
   inputs:
