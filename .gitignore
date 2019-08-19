@@ -49,6 +49,8 @@ override.tf.json
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
+*.tfplan
+plan.json
 
 # End of https://www.gitignore.io/api/dotnetcore,terraform,code
 
