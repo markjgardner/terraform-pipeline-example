@@ -71,7 +71,7 @@ steps:
      !tests/**/*
      !azure-pipelines.yml
      !plan.json
-     !.terraform/terraform.tfstate
+     !**/*.tfstate
     targetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
