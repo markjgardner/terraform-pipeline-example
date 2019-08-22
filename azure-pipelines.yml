@@ -67,10 +67,11 @@ steps:
     Contents: |
      **
      !.git/**/*
-     !tests/**/*
      !.gitignore
+     !tests/**/*
      !azure-pipelines.yml
      !plan.json
+     !.terraform/terraform.tfstate
     targetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
