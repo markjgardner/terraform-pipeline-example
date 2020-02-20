@@ -34,7 +34,7 @@ steps:
     # generate a plan but do not include it in the published artifact
     # this plan is only generated in order to validate that the module will 'build' (it is a test)
     # the 'tfProviderArgs' parameter contains all variables needed to initialize the provider
-    terraform plan -input=false -no-color -out=$(Common.TestResultsDirectory)/plan.tfplan $(tfProviderArgs)
+    terraform plan -input=false -no-color -out=$(Common.TestResultsDirectory)/plan.tfplan $(tfProviderArgs) -detailed-exitcode
   displayName: 'Generate test plan'
   env:
     TF_IN_AUTOMATION: true
