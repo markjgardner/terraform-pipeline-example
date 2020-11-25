@@ -92,7 +92,8 @@ jobs:
           terraform_version: 0.13.5
           terraform_wrapper: false
 
-      - run: ls -R .
+      - name: Fix permissions
+        run: chmod +x -R .terraform/plugins
 
       - name: Select environment workspace
         run: terraform workspace select $TARGET_ENVIRONMENT
