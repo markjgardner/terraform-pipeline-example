@@ -1,0 +1,68 @@
+name: TerraformExample
+
+on: 
+  push:
+    branches:
+      - "actions"
+
+jobs:
+  build:
+    name: Run CI phase
+    runs-on: ubuntu-latest
+    env:
+      TF_IN_AUTOMATION: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 13.5
+          terraform_wrapper: false
+
+      - name: Initialize terraform
+        run: terraform init
+
+      - name: Validate the code
+        run: terraform validate
+
+      - name: Create temporary workspace
+        run: terraform workspace new build-$GITHUB_RUN_NUMBER
+    
+      - name: Switch to temporary workspace
+        run: terraform workspace select build-$GITHUB_RUN_NUMBER
+
+      - name: Generate test plan
+        run: terraform plan -out=$GITHUB_WORKSPACE/plan.tfplan
+
+      - name: Convert plan to json
+        run: terraform show -json $GITHUB_WORKSPACE/plan.tfplan > $GITHUB_WORKSPACE/plan.json
+
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      
+      - name: Run unit tests
+        run: dotnet test 
+        working-directory: tests
+
+      - name: Publish the plan
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: plan
+          path: $GITHUB_WORKSPACE/plan.tfplan
+    
+      - name: Switch back to default workspace
+        run: terraform workspace select default
+        if: ${{ always() }}
+        
+      - name: Delete temporary workspace
+        run: terraform workspace delete -force build-$GITHUB_RUN_NUMBER
+        if: ${{ always() }}
+        continue-on-error: true

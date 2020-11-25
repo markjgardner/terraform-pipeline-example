@@ -1,19 +1,3 @@
-variable "tenantId" {
-  description = "The AzureAD tenant"
-}
-
-variable "subscriptionId" {
-  description = "The azure subscription"
-}
-
-variable "clientId" {
-  description = "The application ID of the service principal"
-}
-
-variable "clientSecret" {
-  description = "The secret key for the service principal"
-}
-
 variable "vnetAddressSpace" {
   description = "The address space allocated to the vnet"
   default = "10.0.0.0/20"
@@ -22,17 +6,16 @@ variable "vnetAddressSpace" {
 
 terraform {
   backend "azurerm" {
-    container_name = "terraform"
-    key            = "example"
+    resource_group_name  = "debug-rg"
+    storage_account_name = "terraformexamplestate"
+    container_name       = "terraform"
+    key                  = "example"
   }
 }
 
 provider "azurerm" {
-  version         = "~> 1.32"
-  tenant_id       = var.tenantId
-  subscription_id = var.subscriptionId
-  client_id       = var.clientId
-  client_secret   = var.clientSecret
+  version  = "~> 2.37"
+  features {}
 }
 
 resource "azurerm_resource_group" "rg" {
