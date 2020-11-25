@@ -1,4 +1,4 @@
-name: TerraformExample
+name: TerraformExampleCI
 
 on: 
   push:
@@ -51,12 +51,14 @@ jobs:
         run: dotnet test 
         working-directory: tests
 
-      - name: Publish the plan
+      - name: Publish the entire directory
         if: ${{ success() }}
         uses: actions/upload-artifact@v2
         with:
-          name: plan
-          path: plan.tfplan
+          name: infrastructure
+          path: |
+            ./.terraform
+            **/*.tf
     
       - name: Switch back to default workspace
         run: terraform workspace select default
@@ -66,3 +68,35 @@ jobs:
         run: terraform workspace delete -force build-$GITHUB_RUN_NUMBER
         if: ${{ always() }}
         continue-on-error: true
+
+  deployTest:
+    name: "Run CD phase: Deploy Test"
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      TF_IN_AUTOMATION: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENTID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTIONID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
+      TARGET_ENVIRONMENT: test
+
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: infrastructure
+      
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.13.5
+          terraform_wrapper: false
+
+      - name: Select environment workspace
+        run: terraform workspace select $TARGET_ENVIRONMENT
+
+      - name: Generate plan
+        run: terraform plan -out=plan.tfplan
+
+      - name: Apply plan
+        run: terraform apply plan.tfplan
