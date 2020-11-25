@@ -106,7 +106,7 @@ jobs:
 
   deployProd:
     name: "Run CD phase: Deploy Test"
-    needs: build
+    needs: deployTest
     runs-on: ubuntu-latest
     env:
       TF_IN_AUTOMATION: true
