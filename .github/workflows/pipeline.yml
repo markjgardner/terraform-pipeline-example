@@ -105,7 +105,7 @@ jobs:
         run: terraform apply plan.tfplan
 
   deployProd:
-    name: "Run CD phase: Deploy Test"
+    name: "Run CD phase: Deploy Production"
     needs: deployTest
     runs-on: ubuntu-latest
     env:
