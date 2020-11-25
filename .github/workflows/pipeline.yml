@@ -103,3 +103,38 @@ jobs:
 
       - name: Apply plan
         run: terraform apply plan.tfplan
+
+  deployProd:
+    name: "Run CD phase: Deploy Test"
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      TF_IN_AUTOMATION: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENTID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTIONID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
+      TARGET_ENVIRONMENT: production
+
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: infrastructure
+      
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.13.5
+          terraform_wrapper: false
+
+      - name: Fix permissions
+        run: chmod +x -R .terraform/plugins
+
+      - name: Select environment workspace
+        run: terraform workspace select $TARGET_ENVIRONMENT
+
+      - name: Generate plan
+        run: terraform plan -out=plan.tfplan
+
+      - name: Apply plan
+        run: terraform apply plan.tfplan
