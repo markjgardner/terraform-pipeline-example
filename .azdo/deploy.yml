@@ -1,0 +1,21 @@
+parameters:
+  environmentName: ''
+
+steps:
+- script: |
+    # ensure all terraform provider plugins are executable
+    chmod +x -R .terraform/plugins
+  displayName: fix permissions
+  workingDirectory: $(Pipeline.Workspace)/terraform/
+- script: |
+    terraform workspace select ${{ parameters.environmentName }}
+  displayName: select environment workspace
+  workingDirectory: $(Pipeline.Workspace)/terraform/
+- script: |
+    terraform plan -input=false -no-color -out=plan.tfplan $(tfProviderArgs) 
+  displayName: generate plan
+  workingDirectory: $(Pipeline.Workspace)/terraform/
+- script: |
+    terraform apply -input=false -no-color -auto-approve plan.tfplan
+  displayName: apply plan
+  workingDirectory: $(Pipeline.Workspace)/terraform/
