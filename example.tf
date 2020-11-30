@@ -4,6 +4,7 @@ variable "vnetAddressSpace" {
 }
 
 terraform {
+  required_version = ">= 0.12"
   backend "azurerm" {
     resource_group_name  = "debug-rg"
     storage_account_name = "terraformexamplestate"
@@ -41,11 +42,4 @@ resource "azurerm_subnet" "app-sn" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [cidrsubnet(var.vnetAddressSpace, 7, 1)]
-}
-
-resource "azurerm_subnet" "app2-sn" {
-  name                 = "App2Subnet"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [cidrsubnet(var.vnetAddressSpace, 7, 2)]
 }
