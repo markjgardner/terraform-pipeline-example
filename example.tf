@@ -3,7 +3,6 @@ variable "vnetAddressSpace" {
   default = "10.0.0.0/20"
 }
 
-
 terraform {
   backend "azurerm" {
     resource_group_name  = "debug-rg"
@@ -34,19 +33,26 @@ resource "azurerm_subnet" "gw-sn" {
   name                 = "GatewaySubnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefix       = cidrsubnet(var.vnetAddressSpace, 7, 0)
+  address_prefixes     = [cidrsubnet(var.vnetAddressSpace, 7, 0)]
 }
 
 resource "azurerm_subnet" "app-sn" {
   name                 = "AppSubnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefix       = cidrsubnet(var.vnetAddressSpace, 7, 1)
+  address_prefixes     = [cidrsubnet(var.vnetAddressSpace, 7, 1)]
 }
 
 resource "azurerm_subnet" "app2-sn" {
   name                 = "App2Subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefix       = cidrsubnet(var.vnetAddressSpace, 7, 2)
+  address_prefixes     = [cidrsubnet(var.vnetAddressSpace, 7, 2)]
+}
+
+resource "azurerm_subnet" "app3-sn" {
+  name                 = "App3Subnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [cidrsubnet(var.vnetAddressSpace, 7, 3)]
 }
