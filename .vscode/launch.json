@@ -7,9 +7,9 @@
     {
       "name": ".NET Core Launch (console)",
       "type": "coreclr",
-      "request": "test",
+      "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/tests/bin/Debug/netcoreapp2.2/tests.dll",
+      "program": "${workspaceFolder}/tests/bin/Debug/netcoreapp3.1/tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/tests",
       "console": "internalConsole",
