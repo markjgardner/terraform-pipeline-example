@@ -21,6 +21,9 @@ provider "azurerm" {
 resource "azurerm_resource_group" "rg" {
   name     = "tf-example-${terraform.workspace}-rg"
   location = "eastus2"
+  tags     = {
+    "terraform" = "true"
+  }
 }
 
 resource "azurerm_virtual_network" "vnet" {
