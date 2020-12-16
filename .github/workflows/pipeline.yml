@@ -80,11 +80,9 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTIONID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
+      TARGET_ENVIRONMENT: test
 
     steps:
-      - name: debug
-        run: printenv
-        
       - name: Download a Build Artifact
         uses: actions/download-artifact@v2
         with:
@@ -99,7 +97,7 @@ jobs:
         run: chmod +x -R .terraform/plugins
 
       - name: Select environment workspace
-        run: terraform workspace select ${{ job.environment }}
+        run: terraform workspace select $TARGET_ENVIRONMENT
 
       - name: Generate plan
         run: terraform plan -out=plan.tfplan
@@ -118,6 +116,7 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTIONID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
+      TARGET_ENVIRONMENT: production
 
     steps:
       - name: Download a Build Artifact
@@ -134,7 +133,7 @@ jobs:
         run: chmod +x -R .terraform/plugins
 
       - name: Select environment workspace
-        run: terraform workspace select ${{ job.environment }}
+        run: terraform workspace select $TARGET_ENVIRONMENT
 
       - name: Generate plan
         run: terraform plan -out=plan.tfplan
