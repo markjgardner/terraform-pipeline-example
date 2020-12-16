@@ -71,6 +71,7 @@ jobs:
 
   deployTest:
     name: "Run CD phase: Deploy Test"
+    environment: test
     needs: build
     runs-on: ubuntu-latest
     env:
@@ -79,7 +80,6 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTIONID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
-      TARGET_ENVIRONMENT: test
 
     steps:
       - name: Download a Build Artifact
@@ -96,7 +96,7 @@ jobs:
         run: chmod +x -R .terraform/plugins
 
       - name: Select environment workspace
-        run: terraform workspace select $TARGET_ENVIRONMENT
+        run: terraform workspace select ${{ job.environment.name }}
 
       - name: Generate plan
         run: terraform plan -out=plan.tfplan
@@ -106,6 +106,7 @@ jobs:
 
   deployProd:
     name: "Run CD phase: Deploy Production"
+    environment: production
     needs: deployTest
     runs-on: ubuntu-latest
     env:
@@ -114,7 +115,6 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTIONID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
-      TARGET_ENVIRONMENT: production
 
     steps:
       - name: Download a Build Artifact
@@ -131,7 +131,7 @@ jobs:
         run: chmod +x -R .terraform/plugins
 
       - name: Select environment workspace
-        run: terraform workspace select $TARGET_ENVIRONMENT
+        run: terraform workspace select ${{ job.environment.name }}
 
       - name: Generate plan
         run: terraform plan -out=plan.tfplan
