@@ -96,7 +96,7 @@ jobs:
         run: chmod +x -R .terraform/plugins
 
       - name: Select environment workspace
-        run: terraform workspace select ${{ job.environment.name }}
+        run: terraform workspace select ${{ job.environment }}
 
       - name: Generate plan
         run: terraform plan -out=plan.tfplan
@@ -131,7 +131,7 @@ jobs:
         run: chmod +x -R .terraform/plugins
 
       - name: Select environment workspace
-        run: terraform workspace select ${{ job.environment.name }}
+        run: terraform workspace select ${{ job.environment }}
 
       - name: Generate plan
         run: terraform plan -out=plan.tfplan
