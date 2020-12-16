@@ -117,6 +117,9 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
 
     steps:
+      - name: debug
+        run: printenv
+    
       - name: Download a Build Artifact
         uses: actions/download-artifact@v2
         with:
