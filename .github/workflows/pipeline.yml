@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "actions"
+      - "master"
 
 jobs:
   build:
