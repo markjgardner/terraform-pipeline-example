@@ -11,12 +11,12 @@ terraform {
     container_name       = "terraform"
     key                  = "example"
   }
-  skip_provider_registration = true
 }
 
 provider "azurerm" {
   version  = "~> 2.37"
   features {}
+  skip_provider_registration = true
 }
 
 resource "azurerm_resource_group" "rg" {
