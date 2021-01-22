@@ -1,0 +1,143 @@
+name: TerraformExampleCI
+
+on: 
+  push:
+    branches:
+      - "master"
+      - "demo"
+
+jobs:
+  build:
+    name: Run CI phase
+    runs-on: ubuntu-latest
+    env:
+      TF_IN_AUTOMATION: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENTID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTIONID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.13.5
+          terraform_wrapper: false
+
+      - name: Initialize terraform
+        run: terraform init
+
+      - name: Validate the code
+        run: terraform validate
+
+      - name: Create temporary workspace
+        run: terraform workspace new build-$GITHUB_RUN_NUMBER
+    
+      - name: Switch to temporary workspace
+        run: terraform workspace select build-$GITHUB_RUN_NUMBER
+
+      - name: Generate test plan
+        run: terraform plan -out="plan.tfplan"
+
+      - name: Convert plan to json
+        run: terraform show -json plan.tfplan > plan.json
+
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      
+      - name: Run unit tests
+        run: dotnet test 
+        working-directory: tests
+
+      - name: Publish the entire directory
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: infrastructure
+          path: |
+            .terraform/**/*
+            **/*.tf
+    
+      - name: Switch back to default workspace
+        run: terraform workspace select default
+        if: ${{ always() }}
+        
+      - name: Delete temporary workspace
+        run: terraform workspace delete -force build-$GITHUB_RUN_NUMBER
+        if: ${{ always() }}
+        continue-on-error: true
+
+  deployTest:
+    name: "Run CD phase: Deploy Test"
+    environment: test
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      TF_IN_AUTOMATION: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENTID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTIONID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
+      TARGET_ENVIRONMENT: test
+
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: infrastructure
+      
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.13.5
+          terraform_wrapper: false
+
+      - name: Fix permissions
+        run: chmod +x -R .terraform/plugins
+
+      - name: Select environment workspace
+        run: terraform workspace select $TARGET_ENVIRONMENT
+
+      - name: Generate plan
+        run: terraform plan -out=plan.tfplan
+
+      - name: Apply plan
+        run: terraform apply plan.tfplan
+
+  deployProd:
+    name: "Run CD phase: Deploy Production"
+    environment: production
+    needs: deployTest
+    runs-on: ubuntu-latest
+    env:
+      TF_IN_AUTOMATION: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENTID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTIONID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANTID }}
+      TARGET_ENVIRONMENT: production
+
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: infrastructure
+      
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.13.5
+          terraform_wrapper: false
+
+      - name: Fix permissions
+        run: chmod +x -R .terraform/plugins
+
+      - name: Select environment workspace
+        run: terraform workspace select $TARGET_ENVIRONMENT
+
+      - name: Generate plan
+        run: terraform plan -out=plan.tfplan
+
+      - name: Apply plan
+        run: terraform apply plan.tfplan

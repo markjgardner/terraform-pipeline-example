@@ -20,7 +20,7 @@ namespace tests {
     [Fact]
     public void Test0()
     {
-      Assert.Equal(5, resources.Count());
+      Assert.Equal(4, resources.Count());
     }
 
     [Fact]
@@ -33,21 +33,14 @@ namespace tests {
     public void Test2()
     {
       var r = resources.Single(p => p.name == "gw-sn");
-      Assert.Equal("10.0.0.0/27", r.change.after.address_prefix.Value);
+      Assert.Equal("10.0.0.0/27", r.change.after.address_prefixes[0].Value);
     }
 
     [Fact]
     public void Test3()
     {
       var r = resources.Single(p => p.name == "app-sn");
-      Assert.Equal("10.0.0.32/27", r.change.after.address_prefix.Value);
-    }
-
-    [Fact]
-    public void Test4()
-    {
-      var r = resources.Single(p => p.name == "app2-sn");
-      Assert.Equal("10.0.0.64/27", r.change.after.address_prefix.Value);
+      Assert.Equal("10.0.0.32/27", r.change.after.address_prefixes[0].Value);
     }
   }
 }
