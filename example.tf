@@ -11,6 +11,7 @@ terraform {
     container_name       = "terraform"
     key                  = "example"
   }
+  skip_provider_registration = true
 }
 
 provider "azurerm" {
