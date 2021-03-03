@@ -1,0 +1,11 @@
+trigger:
+- gitmodules
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+  persistCredentials: true
+
+- script: git checkout https://github.com/markjgardner/pulumi-example.git
